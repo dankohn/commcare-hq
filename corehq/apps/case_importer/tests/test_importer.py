@@ -536,8 +536,9 @@ def make_business_units(domain, shares_cases=True):
 
 @contextmanager
 def get_commcare_user(domain_name):
-    user = CommCareUser.create(domain_name, 'username', 'pw')
-    try:
-        yield user
-    finally:
-        user.delete()
+    with patch('corehq.apps.users.signals.send_to_elasticsearch'):
+        user = CommCareUser.create(domain_name, 'username', 'pw')
+        try:
+            yield user
+        finally:
+            user.delete()
